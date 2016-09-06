@@ -1,0 +1,584 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "",
+    "title": "x[My] Playpen Run API",
+    "description": "TODO: Add Description",
+    "license": {
+      "name": "MIT",
+      "url": "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
+    }
+  },
+  "host": "rooturl",
+  "basePath": "/api/",
+  "securityDefinitions": {},
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/{communityId}/playlistFeeds/{playlistFeedId}/playlistInstances": {
+      "post": {
+        "description": "Creates Playlist Instance for specific Playlist Feed",
+        "tags": [
+          "CMS Release 1"
+        ],
+        "operationId": "Create_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "Community ID"
+          },
+          {
+            "name": "playlistFeedId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "number",
+            "format": "double",
+            "description": "Playlist Feed ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/c/{communityId}/playlistFeeds/{playlistFeedId}/playlistInstances": {
+      "get": {
+        "description": "",
+        "tags": [
+          "CMS Release 2"
+        ],
+        "operationId": "Get One_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": false,
+            "x-is-map": false,
+            "type": "string"
+          },
+          {
+            "name": "playlistFeedId",
+            "in": "path",
+            "required": false,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates Playlist Instance for specific Playlist Feed",
+        "tags": [
+          "CMS Release 2"
+        ],
+        "operationId": "Create_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "Second Community ID"
+          },
+          {
+            "name": "playlistFeedId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "number",
+            "format": "double",
+            "description": "Second Playlist Feed ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/me?_REMEMBER_ME={_REMEMBER_ME}&community={community}&include={includes}": {
+      "get": {
+        "description": "Get user information about current status, current active payment and purchase options.",
+        "tags": [
+          "The /Me API"
+        ],
+        "operationId": "Gets the current user subscription context_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          },
+          {
+            "name": "includes",
+            "in": "path",
+            "required": false,
+            "x-is-map": false,
+            "enum": [
+              "entitlements_summary",
+              "account_actions"
+            ],
+            "type": "string",
+            "description": "optional list of additional data to be includes included in the response. By default profile is included"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Getsthecurrentusersubscriptioncontext_response"
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/me/profiles?_REMEMBER_ME={_REMEMBER_ME}&community={community}": {
+      "get": {
+        "description": "Profile information",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "Gets the users profile information_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Getstheusersprofileinformation_response"
+            }
+          }
+        }
+      }
+    },
+    "/me/purchaseOptions?_REMEMBER_ME={_REMEMBER_ME}&community={community}": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "Get_options user has to make a purchase_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/me/entitlements?_REMEMBER_ME={_REMEMBER_ME}&community={community}&fields=access,follows": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "Get_summary of a user's entitlements_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/me/susbcriptions?_REMEMBER_ME={_REMEMBER_ME}&community={community}": {
+      "get": {
+        "description": "Returns information about active subscription. If no active subscription then 404.\nIf subscription has been cancelled, but last period has not expired then response is 200 with isCancelled=True",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "Get_active subscriptions_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/follows?_REMEMBER_ME={_REMEMBER_ME}&community={community}": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "get list of followed playlists_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/me/follows/{playlistFeedId}?_REMEMBER_ME={_REMEMBER_ME}&community={community}": {
+      "put": {
+        "description": "",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "Update_follow playlist_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          },
+          {
+            "name": "playlistFeedId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/follows/{playlistId}?_REMEMBER_ME={_REMEMBER_ME}&community={community}": {
+      "delete": {
+        "description": "",
+        "tags": [
+          "Separated APIs"
+        ],
+        "operationId": "Delete_unfollow playlist_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "_REMEMBER_ME",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "security token"
+          },
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          },
+          {
+            "name": "playlistId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Getsthecurrentusersubscriptioncontext_response": {
+      "title": "Gets the current user subscription context_response",
+      "type": "object",
+      "properties": {
+        "installation_uid": {
+          "description": "ii needed for BEC",
+          "type": "string"
+        },
+        "first_name": {
+          "description": "first name of user",
+          "type": "string"
+        },
+        "last_name": {
+          "description": "last name of user",
+          "type": "string"
+        },
+        "picture": {
+          "description": "url to the user's profile picture",
+          "type": "string"
+        },
+        "access": {
+          "description": "access level. One of limited, free_trial, premium",
+          "type": "string"
+        },
+        "active_until": {
+          "description": "Datetime when access expires",
+          "type": "string"
+        },
+        "is_recurring": {
+          "description": "Indicates when the access expires",
+          "type": "string"
+        },
+        "recurring_payment_provider": {
+          "description": "If user has a recurring subscription then this field is present and indicates the provider",
+          "type": "boolean"
+        },
+        "can_cancel": {
+          "description": "Indicates whether current subscription can be cancelled",
+          "type": "boolean"
+        },
+        "purchasable_products": {
+          "description": "list of products a user may purchase",
+          "type": "object"
+        },
+        "id": {
+          "description": "id of the product",
+          "type": "string"
+        },
+        "cost": {
+          "description": "cost of the product",
+          "type": "string"
+        },
+        "policy_type": {
+          "description": "Indicates whether product is a onetime or recurring product. Values are onetime or recurring",
+          "type": "string"
+        },
+        "duration": {
+          "description": "duration of the access",
+          "type": "string"
+        },
+        "duration_unit": {
+          "description": "unit of duration field",
+          "type": "string"
+        },
+        "currency": {
+          "description": "currency code relating to the cost of the product purchase. Codes should comply to ISO 4217.",
+          "type": "string"
+        },
+        "payment_provider": {
+          "description": "payment provider for purchasing the product. Values are iTunes, PayPal",
+          "type": "string"
+        },
+        "payment_provider_product_id": {
+          "description": "id to the product held in the payment providers system",
+          "type": "string"
+        }
+      },
+      "required": [
+        "installation_uid",
+        "first_name",
+        "last_name",
+        "access",
+        "active_until",
+        "is_recurring",
+        "can_cancel",
+        "purchasable_products",
+        "id",
+        "cost",
+        "policy_type",
+        "duration",
+        "duration_unit",
+        "currency",
+        "payment_provider",
+        "payment_provider_product_id"
+      ]
+    },
+    "Getstheusersprofileinformation_response": {
+      "title": "Gets the users profile information_response",
+      "type": "object",
+      "properties": {
+        "installation_uid": {
+          "description": "installation uid",
+          "type": "string"
+        }
+      }
+    },
+    "includes": {
+      "title": "includes",
+      "type": "string",
+      "enum": [
+        "entitlements_summary",
+        "account_actions"
+      ]
+    }
+  }
+}
