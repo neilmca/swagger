@@ -117,7 +117,7 @@ function _copy() {
     .on('error', log);
 
   gulp
-    .src('./swagger.json')
+    .src('./swagger.yaml')
     .pipe(gulp.dest('./dist'))
     .on('error', log);
 }
