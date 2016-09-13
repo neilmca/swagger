@@ -16,3 +16,4 @@ node_modules/*
 dist/specs/
 test/specs/local/
 */dist/
+/swagger-ui/dist/
