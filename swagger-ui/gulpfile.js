@@ -115,11 +115,6 @@ function _copy() {
     .src(['./src/main/html/**/*'])
     .pipe(gulp.dest('./dist'))
     .on('error', log);
-
-  gulp
-    .src('./swagger.yaml')
-    .pipe(gulp.dest('./dist'))
-    .on('error', log);
 }
 gulp.task('dev-copy', ['dev-less', 'copy-local-specs'], _copy);
 
