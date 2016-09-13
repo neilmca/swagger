@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body{
+    font-family: Arial;
+    color: #f27819;
+    height: 100vh;
+    
+  }
+  iframe{
+    height: 91vh;
+    border: 1px solid #f27819;
+  }
+  div{
+    height: 91vh;
+    border: 1px solid #f27819;
+  }
+  h1{
+    margin: 5px 0px;
+  }
+  .container{
+    display: flex;
+  }
+  .fixed{
+      width: 200px;
+  }
+  .flex-item{
+      flex-grow: 1;
+  }
+</style>
+</head>
+
+<body>
+<h1>MQ API Index</h1>
+
+<!--Responses-->
+<div class="container">
+  <div class="fixed">
+    <p><a href="https://8080-dot-2016706-dot-devshell.appspot.com/?url=/swagger_inst.yaml" target="swagger">Instagram API</a>
+    <p><a href="https://8080-dot-2016706-dot-devshell.appspot.com/?url=/swagger.yaml" target="swagger">Core Server</a>
+  </div>
+  <div class="flex-item">
+    <iframe name="swagger" width="100%" height="780" scrolling="no" seamless="seamless" ></iframe>
+  </div>
+</div>
+
+
+
+
+</body>
+</html>

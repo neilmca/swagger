@@ -1,0 +1,90 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: Core Server API
+  description: 'TODO: Add a description'
+  license:
+    name: MIT
+    url: http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
+host: rooturl
+basePath: /
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /communities:
+    get:
+      description: List available communities.
+      tags:
+      - JAdmin API 1.0
+      operationId: Get all_
+      parameters:
+      - name: live
+        in: query
+        required: false
+        x-is-map: false
+        type: boolean
+        description: true returns only active, false - inactive communities. If not specified (default) - both active and inactive.
+      - name: sort
+        in: query
+        required: false
+        x-is-map: false
+        enum:
+        - name
+        - name,ASC
+        - name,DESC
+        type: string
+        description: Sort field. If not specified (default) ascending by name sorting is used.
+      responses:
+        200: 
+          description: ok
+          schema:
+            $ref: "#/definitions/Communities"
+          examples:
+            application/json:
+              total: 10
+              data: 
+                id: 123456789
+                name: mtv1
+                description: mtv uk community
+                    
+definitions:
+  Communities:
+    type: object
+    required:
+    - total
+    - data
+    properties:
+      total:
+        description: total amount of data found in the Core System.
+        type: number
+        format: double
+      data:
+        $ref: "#/definitions/Community"
+            
+  Community:
+    description: communities data.
+    type: object
+    required:
+    - id
+    - name
+    - live
+    properties:
+      id:
+        type: string
+        description: CommunityID (a.k. community.urlRewriteParameter in the Core System).
+      name:
+        type: string
+        description: name (a.k. community.displayName in the Core System).
+      live:
+        type: boolean
+        description: defines wherether community is active or inactive.
+
+                
+                
+            
+  
+  
