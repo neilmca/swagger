@@ -1,0 +1,1 @@
+cp api/*.yaml swagger-ui/dist/
