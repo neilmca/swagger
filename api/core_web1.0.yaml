@@ -11,7 +11,7 @@ info:
 host: mtv.musicqubed.com
 basePath: /web/1.0
 schemes:
-- http
+- https
 consumes:
 - application/json
 produces:
@@ -56,14 +56,49 @@ paths:
           description: |
             (Ok) Voucher was successfully redeemed and the entitlement has been applied to the user.
             + Response body gives indication of the effect that redeeming the voucher has had to the user's account.
-              + *billingExtension* - the date to when the user will next be billed has been extended. When this value is returned the *date* field provides the next billing date.\n            
-                + This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. 
-              + *expiryExtension* - the expiry date for the user has been extended. When this value is returned the *date* field provides the expiration date.
-              + This would be returned when a user has redeemed a voucher and already had a one-time subscription e.g. a premium-pass. 
-              + *newEntitlement* - the user has been granted new entitlement that they did not previously have.  When this value is returned the *date* field provides the expiration date.
-              + This would be returned when a user has redeemed a voucher and did not have any previous subscription.
+              + *billingExtension* - the date to when the user will next be billed has been extended. This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. 
+              + *expiryExtension* - the expiry date for the user has been extended. This would be returned when a user has redeemed a voucher and already had a one-time subscription e.g. a premium-pass. 
+              + *newEntitlement* - the user has been granted new entitlement that they did not previously have. This would be returned when a user has redeemed a voucher and did not have any previous subscription.
           schema:
-            $ref: '#/definitions/Redeemresponse'
+            type: object
+            properties:
+              effectOfRedemption:
+                description: effect of redeeming the voucher. One of billingExtension, expiryExtension, newAccess. See above for detail.
+                type: string
+                enum: 
+                - billingExtension
+                - expiryExtension
+                - newEntitlement
+              user:
+                description: first name, last name of the user who has redeemed the voucher
+                type: object
+                properties:
+                    firstName:
+                      description: first name of user
+                      type: string
+                    lastName:
+                      description: last name of user
+                      type: string
+                required:
+                - firstName
+                - lastName
+              voucherDuration:
+                description: length, in days of the voucher entitlement
+                type: number
+                format: double
+            required:
+            - effectOfRedemption
+            - user
+            - voucherDuration
+          examples:
+            effectOfRedemption: billingExtension
+            user:
+              firstName: Phil
+              lastName: Collins
+            voucherDuration: 14
+            
+         
+            
         302:
           description: |
             (Found) is sent back in case voucher redemption was not fully completed. But may still successfully complete after some time.
@@ -75,6 +110,22 @@ paths:
             (Not Found) is sent back for reasons below
               + NotActive - the voucher cannot be redeemed as it is inactive\n    + NotRecognized - the voucher code was not recognized.
               + NotStarted - the voucher cannot be redeemed as the start date is in the future.
+          schema:
+            type: object
+            properties:
+              status: 
+                description:  Error status
+                type: string
+                enum:
+                - NotActive
+                - NotRecognized
+                - NotStarted
+              errorMessage:
+                description: error description
+                type: string
+          examples:
+              status: NotActive
+              errorMessage: Voucher is not active
         409:
           description: |
             (Conflict) is sent back or reasons below
@@ -95,7 +146,6 @@ paths:
                 description: error description
                 type: string
           examples:
-            application/json:
               status: PaymentPending
               errorMessage: voucher redemption already in progress
             
@@ -112,36 +162,7 @@ paths:
           examples:
             errorMessage: voucher has expired
                  
-definitions:
-  Redeemresponse:
-    type: object
-    properties:
-      effectOfRedemption:
-        description: effect of redeeming the voucher. One of billingExtension, expiryExtension, newAccess. See above for detail.
-        type: object
-      user:
-        $ref: '#/definitions/User'
-      voucherDuration:
-        description: length, in days of the voucher entitlement
-        type: number
-        format: double
-    required:
-    - effectOfRedemption
-    - user
-    - voucherDuration
-  User:
-    description: first name, last name of the user who has redeemed the voucher
-    type: object
-    properties:
-      firstName:
-        description: first name of user
-        type: string
-      lastName:
-        description: last name of user
-        type: string
-    required:
-    - firstName
-    - lastName
+
     
 
                 

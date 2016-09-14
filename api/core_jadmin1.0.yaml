@@ -12,7 +12,7 @@ info:
 host: mtv.musicqubed.com
 basePath: /jadmin/api/service/1.0/
 schemes:
-- http
+- https
 consumes:
 - application/json
 produces:
