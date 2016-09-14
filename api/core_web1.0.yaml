@@ -1,0 +1,123 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: Web API 1.0
+  description: |
+  
+    Endpoints exposed from the Core Serve - Web path.
+    
+    JAdminRoot Url https://mtv.musicqubed.com/web/1.0
+
+host: mtv.musicqubed.com
+basePath: /web/1.0
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+tags:
+  - name: Vouchers
+    description: |
+     Defines endpoint to redeem a voucher
+    
+
+paths:
+  
+ /vouchers:
+    put:
+      description: |
+      
+        Redeems a voucher for a given user.  Response provides details of success or failure (and reason).
+      
+        
+        + HTTP 200 (Ok) Voucher was successfully redeemed and the entitlement has been applied to the user.
+          + Response body gives indication of the effect that redeeming the voucher has had to the user's account.
+            + *billingExtension* - the date to when the user will next be billed has been extended. When this value is returned the *date* field provides the next billing date.\n            
+              + This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. 
+            + *expiryExtension* - the expiry date for the user has been extended. When this value is returned the *date* field provides the expiration date.
+            + This would be returned when a user has redeemed a voucher and already had a one-time subscription e.g. a premium-pass. 
+            + *newEntitlement* - the user has been granted new entitlement that they did not previously have.  When this value is returned the *date* field provides the expiration date.
+            + This would be returned when a user has redeemed a voucher and did not have any previous subscription.
+          + HTTP 302 (Found) is sent back in case voucher redemption was not fully completed. But may still successfully complete after some time.
+          + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validation.
+          + HTTP 404 (Not Found) is sent back for reasons below
+            + NotActive - the voucher cannot be redeemed as it is inactive\n    + NotRecognized - the voucher code was not recognized.
+            + NotStarted - the voucher cannot be redeemed as the start date is in the future.
+          + HTTP 409 (Conflict) is sent back or reasons below
+            + Redeemed -  the voucher is already redeemed
+            + iTunesSubscribed - the voucher cannot be redeemed as the user is already subscribed via iTunes
+            + PaymentPending - redemption cannot be applied at present because user state does not allow it. (E.g if user state is pending payment processing)
+          + HTTP 410 (Gone) is sent back n case request failed as voucher has expired
+      tags:
+      - Vouchers
+      produces:
+      - application/json
+      parameters:
+      - name: voucherCode
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Voucher Code
+      - name: _REMEMBER_ME
+        in: query
+        required: true
+        type: string
+        description: token securely identifying user
+      - name: community
+        in: query
+        required: true
+        type: string
+        description: Community
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/Redeemresponse'
+        302:
+          description: Found
+        401:
+          description: Unauthorized
+        404:
+          description: Unexpected error in API call. See HTTP response body for details.
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+        410:
+          description: Unexpected error in API call. See HTTP response body for details.
+definitions:
+  Redeemresponse:
+    type: object
+    properties:
+      effectOfRedemption:
+        description: effect of redeeming the voucher. One of billingExtension, expiryExtension, newAccess. See above for detail.
+        type: object
+      user:
+        $ref: '#/definitions/User'
+      voucherDuration:
+        description: length, in days of the voucher entitlement
+        type: number
+        format: double
+    required:
+    - effectOfRedemption
+    - user
+    - voucherDuration
+  User:
+    description: first name, last name of the user who has redeemed the voucher
+    type: object
+    properties:
+      firstName:
+        description: first name of user
+        type: string
+      lastName:
+        description: last name of user
+        type: string
+    required:
+    - firstName
+    - lastName
+    
+
+                
+            
+  
+  

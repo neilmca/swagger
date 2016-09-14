@@ -1,0 +1,2197 @@
+swagger: 2.0
+info:
+  version: 
+  title: Core Server API
+  description: 'TODO: Add a description'
+  license:
+    name: MIT
+    url: http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
+host: rooturl
+basePath: /
+securityDefinitions:
+  auth:
+    type: oauth2
+    flow: implicit
+    authorizationUrl: 
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /communities?{live}=true&{sort}=name,DESC:
+    get:
+      description: List available communities.
+      tags:
+      - JAdmin API 1.0
+      operationId: Get all_
+      produces:
+      - application/json
+      parameters:
+      - name: live
+        in: path
+        required: false
+        x-is-map: false
+        type: boolean
+        description: true returns only active, false - inactive communities. If not specified (default) - both active and inactive.
+      - name: sort
+        in: path
+        required: false
+        x-is-map: false
+        enum:
+        - name
+        - name,ASC
+        - name,DESC
+        type: string
+        description: Sort field. If not specified (default) ascending by name sorting is used.
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getallresponse'
+      security:
+      - auth: []
+  /communities/{communityId}/products?{paymentMethod}=VOUCHER&{paymentMethod}=PAY_PAL&{sort}=name,ASC:
+    get:
+      description: List Products for the specified community.
+      tags:
+      - JAdmin API 1.0
+      operationId: Get all_
+      produces:
+      - application/json
+      parameters:
+      - name: communityId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: CommunityID (a.k. community.urlRewriteParameter in the Core System).
+      - name: paymentMethod
+        in: path
+        required: false
+        x-is-map: false
+        enum:
+        - VOUCHER
+        - PAY_PAL
+        - 'NETSIZE'
+        - 'ACTIVATION'
+        - creditCard
+        - iTunesSubscription
+        - PSMS
+        - o2Psms
+        - vfPsms
+        type: string
+        description: (a.k. paymentPolicy.paymentType in the Core System). Single value or array to filter products by paymentMethod. No filtering if no specified.
+      - name: sort
+        in: path
+        required: false
+        x-is-map: false
+        enum:
+        - name
+        - name,ASC
+        - name,DESC
+        - paymentMethod
+        - paymentMethod,ASC
+        - paymentMethod,DESC
+        type: string
+        description: Sort field. If not specified (default) ascending by name sorting is used.
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getallresponse1'
+        400:
+          description: 
+        401:
+          description: 
+        404:
+          description: Unexpected error in API call. See HTTP response body for details.
+      security:
+      - auth: []
+  /1.0/vouchers/{voucherCode}/redeem?{_REMEMBER_ME}=078FDRG7DP12434&{community}=mtv1:
+    put:
+      description: "Redeems a voucher for a given user.\nResponse provides details of success or failure (and reason).\n+ HTTP 200 (Ok) Voucher was successfully redeemed and the entitlement has been applied to the user.\n    + Response body gives indication of the effect that redeeming the voucher has had to the user's account.\n        + *billingExtension* - the date to when the user will next be billed has been extended. When this value is returned the *date* field provides the next billing date.\n            + This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. \n        + *expiryExtension* - the expiry date for the user has been extended. When this value is returned the *date* field provides the expiration date.\n            + This would be returned when a user has redeemed a voucher and already had a one-time subscription e.g. a premium-pass. \n        + *newEntitlement* - the user has been granted new entitlement that they did not previously have.  When this value is returned the *date* field provides the expiration date.\n            + This would be returned when a user has redeemed a voucher and did not have any previous subscription.\n+ HTTP 302 (Found) is sent back in case voucher redemption was not fully completed. But may still successfully complete after some time.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations. \n+ HTTP 404 (Not Found) is sent back for reasons below\n    + NotActive - the voucher cannot be redeemed as it is inactive\n    + NotRecognized - the voucher code was not recognized\n    + NotStarted - the voucher cannot be redeemed as the start date is in the future\n+ HTTP 409 (Conflict) is sent back or reasons below \n    + Redeemed -  the voucher is already redeemed\n    + iTunesSubscribed - the voucher cannot be redeemed as the user is already subscribed via iTunes\n    + PaymentPending - redemption cannot be applied at present because user state does not allow it. (E.g if user state is pending payment processing)\n+ HTTP 410 (Gone) is sent back n case request failed as voucher has expired"
+      tags:
+      - Web API 1.0
+      operationId: Update_Redeem_
+      produces:
+      - application/json
+      parameters:
+      - name: voucherCode
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Voucher Code
+      - name: _REMEMBER_ME
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: token securely identifying user
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Redeemresponse'
+        304:
+          description: 
+        401:
+          description: 
+        404:
+          description: Unexpected error in API call. See HTTP response body for details.
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+        410:
+          description: Unexpected error in API call. See HTTP response body for details.
+      security:
+      - auth: []
+  /transport/service/{community}/7.0/installations:
+    post:
+      description: "After new application installed/re-installed to a device, to complete installation proccess and register the installation \nwith the server this request must be successful. It takes a JSON object containing a unique installationID \n(of the 128-bit UUID value) generated by application, unique deviceID and, optionally, push token of the specified push provider.\nResponse provides details of success or failure (and reason).\n+ HTTP 201 (Created) is sent back in case of successully created resource with URI to the resource in Location Header to be used going forward.\n+ HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations.\n+ HTTP 404 (Not Found) is sent back in case there is either no requested community, apiVersion\n+ HTTP 409 (Conflict) is sent back in case request from the client tries is the attempt to create duplicate installation resource (of the same installationID)"
+      tags:
+      - Transport API 7.0
+      operationId: Post new installation_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community name in the form of string
+      - name: secureToken
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Wiki page display/GINF/General defines how to generate one. Payload is installationID.
+      - name: timestamp
+        in: query
+        required: true
+        x-is-map: false
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/Postnewinstallationrequest'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Postnewinstallationresponse'
+        400:
+          description: 
+        401:
+          description: 
+        404:
+          description: 
+        409:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.0/installations/{installationID}/{identityProvider}:
+    put:
+      description: "When user is ready to identity themselves.\nResponse provides details of success or failure (and reason).\n+ HTTP 200 (Ok) is sent back in case installation resource was successully updated with identityProvider details sent (a.k. legacy user.firstActivation=false). Existing user userID is sent back as JSON.\n+ HTTP 201 (Created) is sent back in case request created new resource (user) with identityProvider details sent (a.k. user.firstActivation=true). New user userID is sent back as JSON.\n+ HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations\n+ HTTP 403 (Forbidden) is sent back in case client sends request to update installation with identity provider but installation already has these details. \n+ HTTP 404 (Not Found) is sent back in case there is either no requested community, apiVersion, installation or identityProvider"
+      tags:
+      - Transport API 7.0
+      operationId: Update installation's identity provider details_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community name in the form of string.
+      - name: installationID
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: installationID to update installation's user identity provider.
+      - name: identityProvider
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Supported provider. (e.g. FACEBOOK, GOOGLE, etc.)
+      - name: secureToken
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Wiki page display/GINF/General defines how to generate one. Payload is installationToken.
+      - name: timestamp
+        in: query
+        required: true
+        x-is-map: false
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/Updateinstallation''sidentityproviderdetailsrequest'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Updateinstallation''sidentityproviderdetailsresponse'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.0/installations/{installationID}/primary:
+    get:
+      description: "Response provides details of success or failure (and reason).\n+ HTTP 200 (Ok) responses from this endpoint may contain HTTP Header 'Retry-After' with the value in seconds to retry request. Polling is not required if header is not present.\n+ HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations.\n+ HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request. \n+ HTTP 404 (Not Found) is sent back in case there are either no requested community, apiVersion, installation.\n+ HTTP 409 (Conflict) server sends this error in case polling installation is not primary anymore for client to resolve what to do next."
+      tags:
+      - Transport API 7.0
+      operationId: Get_To confirm installation is primary_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community name in the form of string.
+      - name: installationID
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: installationID to update installation's user identity provider.
+      - name: secureToken
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Wiki page defines how to generate one. Payload is installationToken.
+      - name: timestamp
+        in: query
+        required: true
+        x-is-map: false
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      responses:
+        200:
+          description: 
+          schema:
+            type: object
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        404:
+          description: 
+        409:
+          description: 
+      security:
+      - auth: []
+    put:
+      description: "Response provides details of success or failure (and reason).\n+ HTTP 200 (Ok) responses from this endpoint may contain HTTP Header 'Retry-After' with the value in seconds to retry request. Polling is not required if header is not present.\n+ HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations.\n+ HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request. \n+ HTTP 404 (Not Found) is sent back in case there are either no requested community, apiVersion, installation."
+      tags:
+      - Transport API 7.0
+      operationId: Update_Set installation as primary_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community name in the form of string.
+      - name: installationID
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: installationID to update installation's user identity provider.
+      - name: secureToken
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Wiki page defines how to generate one. Payload is installationToken.
+      - name: timestamp
+        in: query
+        required: true
+        x-is-map: false
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      responses:
+        200:
+          description: 
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.0/me/follows:
+    get:
+      description: >-
+        Get all followed playlist feeds.
+
+        + HTTP 200 (Ok) is sent back with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+
+        + HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request
+      tags:
+      - Transport API 7.0
+      operationId: Get list of followed playlists_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getlistoffollowedplaylistsresponse'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.0/me/follows/{playlistFeedId}:
+    put:
+      description: >-
+        Follow a playlist feed
+
+        + HTTP 200 (Ok) is sent back in case of successful follow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+
+        + HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request
+
+        + HTTP 409 (Conflict) is sent back in case user has exceeded all allowed playlist slots or follow actions. The error type "MAX_SLOTS_EXCEEDED" or "MAX_FOLLOW_ACTIONS_EXCEEDED" contains in JSON
+      tags:
+      - Transport API 7.0
+      operationId: Update_Follow playlist feed_
+      produces:
+      - application/json
+      parameters:
+      - name: playlistFeedId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: community
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Followplaylistfeedresponse'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+      security:
+      - auth: []
+    delete:
+      description: >-
+        Unfollow a playlst feed
+
+        + HTTP 200 (Ok) is sent back in case of successful unfollow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+      tags:
+      - Transport API 7.0
+      operationId: Delete_Unfollow playlist feed_
+      produces:
+      - application/json
+      parameters:
+      - name: playlistFeedId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: community
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Unfollowplaylistfeedresponse'
+        400:
+          description: 
+        401:
+          description: 
+      security:
+      - auth: []
+  /transport/service/admin/{community}/7.0/users/{uid}/token:
+    post:
+      description: Allows a trusted system identified as an issuer to get an authentication token and make calls to Core Server APIs on behalf of a given user.
+      tags:
+      - Transport API 7.0
+      operationId: Create_Refresh authentication token_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: uid
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: User unique id
+      - name: secureToken
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Wiki page display/GINF/General defines how to generate one.
+      - name: timestamp
+        in: query
+        required: true
+        x-is-map: false
+        type: integer
+        format: int64
+        description: '... Wiki page describes why we need this.'
+      - name: issuer
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Unique id assigned to the system issuing the secureToken
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Refreshauthenticationtokenresponse'
+        400:
+          description: 
+        401:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/vouchers/{voucherCode}/redeem:
+    put:
+      description: "Redeems a voucher for a given user.\nResponse provides details of success or failure (and reason).\n+ HTTP 200 (Ok) Voucher was successfully redeemed and the entitlement has been applied to the user.\n    + Response body gives indication of the effect that redeeming the voucher has had to the user's account.\n        + *billingExtension* - the date to when the user will next be billed has been extended. When this value is returned the *date* field provides the next billing date.\n            + This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. \n        + *expiryExtension* - the expiry date for the user has been extended. When this value is returned the *date* field provides the expiration date.\n            + This would be returned when a user has redeemed a voucher and already had a one-time subscription e.g. a premium-pass. \n        + *newEntitlement* - the user has been granted new entitlement that they did not previously have.  When this value is returned the *date* field provides the expiration date.\n            + This would be returned when a user has redeemed a voucher and did not have any previous subscription.\n+ HTTP 302 (Found) is sent back in case voucher redemption was not fully completed. But may still successfully complete after some time.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations. \n+ HTTP 404 (Not Found) is sent back for reasons below\n    + NotActive - the voucher cannot be redeemed as it is inactive\n    + NotRecognized - the voucher code was not recognized\n    + NotStarted - the voucher cannot be redeemed as the start date is in the future\n+ HTTP 409 (Conflict) is sent back with optional JSON body \n+ HTTP 410 (Gone) is sent back n case request failed as voucher has expired"
+      tags:
+      - Transport API 7.1
+      operationId: Update_Redeem_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community
+      - name: voucherCode
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Voucher Code
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Redeemresponse'
+        304:
+          description: 
+        401:
+          description: 
+        404:
+          description: Unexpected error in API call. See HTTP response body for details.
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+        410:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/follows:
+    get:
+      description: >-
+        Get all followed playlist feeds.
+
+        + HTTP 200 (Ok) is sent back with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+
+        + HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request
+      tags:
+      - Transport API 7.1
+      operationId: Get list of followed playlists_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getlistoffollowedplaylistsresponse15'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+      security:
+      - auth: []
+    put:
+      description: >-
+        Sets a list of playlist feeds as the user's initial pre-populated followed playlists. Playlist feeds are assigned into the user's slots in the order they arrive in the request body. If number of slots is less than feeds passed in then remaining feeds are discarded.
+
+        + HTTP 200 (Ok) is sent back in case of successful follow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+
+        + HTTP 409 (Conflict) is sent back in case where user has allowedChangeOfTasteProfile=false.
+      tags:
+      - Transport API 7.1
+      operationId: Update_Reset user's default playlist feeds_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/Resetuser''sdefaultplaylistfeedsrequest'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Resetuser''sdefaultplaylistfeedsresponse'
+        400:
+          description: 
+        401:
+          description: 
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+      security:
+      - auth: []
+    post:
+      description: >-
+        Sets a list of playlist feeds as the user's initial pre-populated followed playlists. Playlist feeds are assigned into the user's slots in the order they arrive in the request body. If number of slots is less than feeds passed in then remaining feeds are discarded.
+
+        + HTTP 201 (Created) is sent back in case of successful follow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+
+        + HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request
+
+        + HTTP 409 (Conflict) is sent back in case where user has followedPlaylistFeedsPrepopulated = True meaning pre-population has already been executed previously.
+      tags:
+      - Transport API 7.1
+      operationId: Create_Prepopulate a user's default playlist feeds_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/Prepopulateauser''sdefaultplaylistfeedsrequest'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Prepopulateauser''sdefaultplaylistfeedsresponse'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/follows/displayTasteProfile:
+    get:
+      description: >-
+        Get allowedChangeOfTasteProfile flag to indicate whether client must allow user manually restart the completion of artist set profile or not.
+
+        + HTTP 200 (Ok) is sent back with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+      tags:
+      - Transport API 7.1
+      operationId: Get displayTasteProfile_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/GetdisplayTasteProfileresponse'
+        401:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/follows/displayChannelChoice:
+    get:
+      description: >-
+        displayChannelChoice informs whether client allows user to change his current music channel or not.
+
+        + HTTP 200 (Ok) is sent back with JSON containing Channel choice change allowance flag, regular change time allowance and time left for user to change his current music channel
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+      tags:
+      - Transport API 7.1
+      operationId: Get displayChannelChoice_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/GetdisplayChannelChoiceresponse'
+        401:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/follows/{playlistFeedId}:
+    put:
+      description: >-
+        Follow a playlist feed
+
+        + HTTP 200 (Ok) is sent back in case of successful follow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+
+        + HTTP 403 (Forbidden) is sent back in case client is in state not appropriate for the request
+
+        + HTTP 409 (Conflict) is sent back in case user has exceeded all allowed playlist slots or follow actions. The error type "MAX_SLOTS_EXCEEDED" or "MAX_FOLLOW_ACTIONS_EXCEEDED" contains in JSON
+      tags:
+      - Transport API 7.1
+      operationId: Update_Follow playlist feed_
+      produces:
+      - application/json
+      parameters:
+      - name: playlistFeedId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: community
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Followplaylistfeedresponse19'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        409:
+          description: Unexpected error in API call. See HTTP response body for details.
+      security:
+      - auth: []
+    delete:
+      description: >-
+        Unfollow a playlst feed
+
+        + HTTP 200 (Ok) is sent back in case of successful unfollow action or in case feed ID not found or user in LIMITED state and not allowed to perform delete action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+
+        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations
+      tags:
+      - Transport API 7.1
+      operationId: Delete_Unfollow playlist feed_
+      produces:
+      - application/json
+      parameters:
+      - name: playlistFeedId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: community
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Unfollowplaylistfeedresponse21'
+        401:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/profile:
+    get:
+      description: Profile information
+      tags:
+      - Transport API 7.1
+      operationId: Gets user's profile_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community name in the form of string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getsuser''sprofileresponse'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/subscriptions:
+    get:
+      description: >-
+        Get user subscription details. There will always be at least one active Product SKU since LITE mode is itself a Product SKU.
+
+        Note: Whilst the activeProductSkus is an array, at present there will only ever be at most one SKU item in the array.
+
+        Example: Purchase paypal one-time then redeem voucher - activeProductSku would show voucher's SKU.
+      tags:
+      - Transport API 7.1
+      operationId: Get user's subscription details_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getuser''ssubscriptiondetailsresponse'
+        400:
+          description: 
+        401:
+          description: 
+        403:
+          description: 
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/productSkus:
+    get:
+      description: >-
+        Product SKU is a representation of how a product can be acquired. A Product SKU can include multiple products in its definition.
+
+        Returns Product Skus which belong to the specified community now matter of the query parameter filters.
+      tags:
+      - Draft Transport API 7.x Stripe
+      operationId: Get Product SKUs_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: id
+        in: query
+        required: false
+        x-is-map: false
+        type: Array
+        items:
+          type: number
+          format: double
+        description: Filtering query parameter to limit Product Skus by requested ids only. No filtering if ommitted.
+      - name: liveOnly
+        in: query
+        required: false
+        x-is-map: false
+        type: Array
+        items:
+          type: boolean
+        description: Filtering query parameter to return only active Product Skus. No filtering if ommitted.
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/GetProductSKUsresponse52'
+        400:
+          description: 
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/me/purchases:
+    post:
+      description: Endpoint to apply different payments to the Core system.
+      tags:
+      - Transport API 7.1
+      operationId: Create_Apply External Payment_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/ApplyExternalPaymentrequest'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/ApplyExternalPaymentresponse'
+        400:
+          description: 
+        401:
+          description: 
+        404:
+          description: 
+        409:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.1/CONTEXT?USER_TOKEN={userToken}&TIMESTAMP={timeStamp}&USER_NAME={userName}:
+    get:
+      description: Get  context containing desription of user's entitlement
+      tags:
+      - Transport API 7.1
+      operationId: Get user context_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: USER_TOKEN
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+      - name: TIMESTAMP
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+      - name: USER_NAME
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+      - name: userToken
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      - name: timeStamp
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      - name: userName
+        in: path
+        required: false
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getusercontextresponse'
+        400:
+          description: Unexpected error in API call. See HTTP response body for details.
+        401:
+          description: Unexpected error in API call. See HTTP response body for details.
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.y/installations:
+    post:
+      description: "After new application installed/re-installed to a device, to complete installation proccess and register the installation \nwith the server this request must be successful. It takes a JSON object containing a unique installationID \n(of the 128-bit UUID value) generated by application, unique deviceID and, optionally, push token of the specified push provider.\nResponse provides details of success or failure (and reason).\n+ HTTP 201 (Created) is sent back in case of successully created resource with URI to the resource in Location Header to be used going forward.\n+ HTTP 400 (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.\n+ HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validations.\n+ HTTP 404 (Not Found) is sent back in case there is either no requested community, apiVersion\n+ HTTP 409 (Conflict) is sent back in case request from the client tries is the attempt to create duplicate installation resource (of the same installationID)"
+      tags:
+      - Draft Transport API 7.y Updates for Referrals
+      operationId: Post new installation_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: Community name in the form of string
+      - name: secureToken
+        in: query
+        required: true
+        x-is-map: false
+        type: string
+        description: Wiki page display/GINF/General defines how to generate one. Payload is installationID.
+      - name: timestamp
+        in: query
+        required: true
+        x-is-map: false
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/Postnewinstallationrequest60'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Postnewinstallationresponse'
+        400:
+          description: 
+        401:
+          description: 
+        404:
+          description: 
+        409:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.y/productSkus:
+    get:
+      description: >-
+        Product SKU is a representation of how a product can be acquired. A Product SKU can include multiple products in its definition.
+
+        Returns Product Skus which belong to the specified community now matter of the query parameter filters.
+      tags:
+      - Draft Transport API 7.y Updates for Referrals
+      operationId: Get Product SKUs_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: id
+        in: query
+        required: false
+        x-is-map: false
+        type: Array
+        items:
+          type: number
+          format: double
+        description: filter to limit Product Skus by requested ids only. No filtering if ommitted.
+      - name: liveOnly
+        in: query
+        required: false
+        x-is-map: false
+        type: Array
+        items:
+          type: boolean
+        description: Filtering query parameter to return only active Product Skus. No filtering if ommitted.
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/GetProductSKUsresponse62'
+        400:
+          description: 
+        404:
+          description: 
+      security:
+      - auth: []
+  /transport/service/{community}/7.y/referredActivations:
+    get:
+      description: To Do
+      tags:
+      - Draft Transport API 7.y Updates for Referrals
+      operationId: Get referred activations_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/Getreferredactivationsresponse'
+      security:
+      - auth: []
+  /transport/service/{community}/7.z/productSkus/purchaseOptions:
+    post:
+      description: "Returns a list of product SKUs that may be purchased. \nThe determination of what products maybe purchased depends on a number of data points.\n* Active Product SKU/Products (and in recurring subscription case, whether it has been cancelled)\n* Platform\n* App version"
+      tags:
+      - Draft Transport API 7.z
+      operationId: Create_Purchasable Product SKUs_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/PurchasableProductSKUsrequest'
+      responses:
+        200:
+          description: 
+          schema:
+            $ref: '#/definitions/PurchasableProductSKUsresponse'
+        400:
+          description: 
+        401:
+          description: 
+      security:
+      - auth: []
+definitions:
+  Getallresponse:
+    title: Get all response
+    type: object
+    properties:
+      total:
+        description: total mount of data found in the Core System.
+        type: number
+        format: double
+      data:
+        description: communities data.
+        type: object
+    required:
+    - total
+    - data
+  Getallresponse1:
+    title: Get all response1
+    type: object
+    properties:
+      total:
+        description: total mount of data found in the Core System.
+        type: number
+        format: double
+      data:
+        description: products data.
+        type: object
+      id:
+        description: productID (a.k. paymentPolicy.ID in the Core System).
+        type: number
+        format: double
+      name:
+        description: product name (a.k. paymentPolicy.contentDescription in the Core System).
+        type: string
+      paymentMethod:
+        description: product paymentMethod (a.k. paymentPolicy.paymentType in the Core System).
+        type: string
+      duration:
+        description: duration information for the product. Optional as would not be present if product did not specify a duration e.g. 100 plays product
+        type: object
+      length:
+        description: length of product
+        type: string
+      unit:
+        description: unit of length. Possible values are SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS
+        type: object
+      productDurationLongerThanFreeTrial:
+        description: True if the duration of the product is longer than the Free Trial period for the specified community.
+        type: boolean
+    required:
+    - total
+    - data
+    - id
+    - name
+    - paymentMethod
+    - length
+    - unit
+  Redeemresponse:
+    title: Redeem response
+    type: object
+    properties:
+      effectOfRedemption:
+        description: effect of redeeming the voucher. One of billingExtension, expiryExtension, newAccess. See above for detail.
+        type: object
+      user:
+        description: first name, last name of the user who has redeemed the voucher
+        $ref: '#/definitions/User'
+      voucherDuration:
+        description: length, in days of the voucher entitlement
+        type: number
+        format: double
+    required:
+    - effectOfRedemption
+    - user
+    - voucherDuration
+  User:
+    title: User
+    type: object
+    properties:
+      firstName:
+        description: first name of user
+        type: string
+      lastName:
+        description: last name of user
+        type: string
+    required:
+    - firstName
+    - lastName
+  Postnewinstallationrequest:
+    title: Post new installation request
+    type: object
+    properties:
+      installationID:
+        type: string
+      deviceID:
+        type: string
+      push:
+        type: object
+    required:
+    - installationID
+    - deviceID
+    - push
+  Postnewinstallationresponse:
+    title: Post new installation response
+    type: object
+    properties:
+      installationID:
+        description: installation UUID
+        type: string
+      installationToken:
+        description: installation token
+        type: string
+    required:
+    - installationID
+    - installationToken
+  Updateinstallation'sidentityproviderdetailsrequest:
+    title: Update installation's identity provider details request
+    type: object
+    properties:
+      userIdentity:
+        type: object
+      push:
+        type: object
+    required:
+    - userIdentity
+    - push
+  Updateinstallation'sidentityproviderdetailsresponse:
+    title: Update installation's identity provider details response
+    type: object
+    properties:
+      userId:
+        description: userId
+        type: string
+    required:
+    - userId
+  Getlistoffollowedplaylistsresponse:
+    title: Get list of followed playlists response
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        type: object
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: double
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: double
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: double
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+    required:
+    - followedPlaylistFeedCounters
+    - maxSlots
+    - maxFollowsActions
+    - followActionsUsed
+    - followedPlaylistFeeds
+  Followplaylistfeedresponse:
+    title: Follow playlist feed response
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        type: object
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: double
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: double
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: double
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+    required:
+    - followedPlaylistFeedCounters
+    - maxSlots
+    - maxFollowsActions
+    - followActionsUsed
+    - followedPlaylistFeeds
+  Unfollowplaylistfeedresponse:
+    title: Unfollow playlist feed response
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        type: object
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: double
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: double
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: double
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+    required:
+    - followedPlaylistFeedCounters
+    - maxSlots
+    - maxFollowsActions
+    - followActionsUsed
+    - followedPlaylistFeeds
+  Refreshauthenticationtokenresponse:
+    title: Refresh authentication token response
+    type: object
+    properties:
+      access_token:
+        description: access token value
+        type: string
+      token_type:
+        description: authorization type returned value can be used
+        $ref: '#/definitions/TokenType'
+      expires_in:
+        description: number of seconds for token to expire
+        type: number
+        format: double
+    required:
+    - access_token
+    - token_type
+    - expires_in
+  TokenType:
+    title: TokenType
+    type: string
+    enum:
+    - Bearer
+  Getlistoffollowedplaylistsresponse15:
+    title: Get list of followed playlists response15
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        $ref: '#/definitions/FollowedPlaylistFeedCounters'
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+      followedPlaylistFeedsPrepopulated:
+        description: flag to indicate whether the user's followed playlists have been pre-populated at some point. If false then user should be shown the taste widget to allow them to specify their tatse profile.
+        type: boolean
+      restrictUnfollows:
+        description: flag to indicate whether unfollow action allowed or not
+        type: boolean
+    required:
+    - followedPlaylistFeedCounters
+    - followedPlaylistFeeds
+    - followedPlaylistFeedsPrepopulated
+    - restrictUnfollows
+  FollowedPlaylistFeedCounters:
+    title: FollowedPlaylistFeedCounters
+    type: object
+    properties:
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: double
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: double
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: double
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+    required:
+    - followActionsUsed
+    - maxFollowsActions
+    - maxSlots
+  GetdisplayTasteProfileresponse:
+    title: Get displayTasteProfile response
+    type: object
+    properties:
+      allowedChangeOfTasteProfile:
+        description: flag to indicate that feed list could be changed.
+        type: boolean
+    required:
+    - allowedChangeOfTasteProfile
+  GetdisplayChannelChoiceresponse:
+    title: Get displayChannelChoice response
+    type: object
+    properties:
+      serverTime:
+        description: server time in ISO8601 format
+        type: string
+      allowChannelChange:
+        description: instruction whether user allowed to change his current channel or not
+        type: boolean
+      channelChangePeriod:
+        description: pre-configured time period in hours that informs user about how often he can change his current music channel in general.
+        type: number
+        format: double
+      nextChannelChange:
+        description: date and time that informs user when he will be able to change his current music channel again. Attribute may contain null value.
+        type: string
+    required:
+    - serverTime
+    - allowChannelChange
+    - channelChangePeriod
+    - nextChannelChange
+  Followplaylistfeedresponse19:
+    title: Follow playlist feed response19
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        $ref: '#/definitions/FollowedPlaylistFeedCounters'
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+      followedPlaylistFeedsPrepopulated:
+        description: flag to indicate whether the user's followed playlists have been pre-populated at some point. If false then user should be shown the taste widget to allow them to specify their tatse profile.
+        type: boolean
+      restrictUnfollows:
+        description: flag to indicate whether unfollow action allowed or not
+        type: boolean
+    required:
+    - followedPlaylistFeedCounters
+    - followedPlaylistFeeds
+    - followedPlaylistFeedsPrepopulated
+    - restrictUnfollows
+  Unfollowplaylistfeedresponse21:
+    title: Unfollow playlist feed response21
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        $ref: '#/definitions/FollowedPlaylistFeedCounters'
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+      followedPlaylistFeedsPrepopulated:
+        description: flag to indicate whether the user's followed playlists have been pre-populated at some point. If false then user should be shown the taste widget to allow them to specify their tatse profile.
+        type: boolean
+      restrictUnfollows:
+        description: flag to indicate whether unfollow action allowed or not
+        type: boolean
+    required:
+    - followedPlaylistFeedCounters
+    - followedPlaylistFeeds
+    - followedPlaylistFeedsPrepopulated
+    - restrictUnfollows
+  Prepopulateauser'sdefaultplaylistfeedsrequest:
+    title: Prepopulate a user's default playlist feeds request
+    type: object
+    properties:
+      playlistFeeds:
+        type: array
+        items:
+          type: integer
+          format: int32
+    required:
+    - playlistFeeds
+  Prepopulateauser'sdefaultplaylistfeedsresponse:
+    title: Prepopulate a user's default playlist feeds response
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        type: object
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: double
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: double
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: double
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+      followedPlaylistFeedsPrepopulated:
+        description: flag to indicate whether the user's followed playlists have been pre-populated at some point. If false then user should be shown the taste widget to allow them to specify their tatse profile.
+        type: boolean
+      restrictUnfollows:
+        description: flag to indicate whether unfollow action allowed or not
+        type: boolean
+    required:
+    - followedPlaylistFeedCounters
+    - maxSlots
+    - maxFollowsActions
+    - followActionsUsed
+    - followedPlaylistFeeds
+    - followedPlaylistFeedsPrepopulated
+    - restrictUnfollows
+  Resetuser'sdefaultplaylistfeedsrequest:
+    title: Reset user's default playlist feeds request
+    type: object
+    properties:
+      playlistFeeds:
+        type: array
+        items:
+          type: integer
+          format: int32
+    required:
+    - playlistFeeds
+  Resetuser'sdefaultplaylistfeedsresponse:
+    title: Reset user's default playlist feeds response
+    type: object
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        type: object
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: double
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: double
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: double
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+      followedPlaylistFeedsPrepopulated:
+        description: flag to indicate whether the user's followed playlists have been pre-populated at some point. If false then user should be shown the taste widget to allow them to specify their tatse profile.
+        type: boolean
+      restrictUnfollows:
+        description: flag to indicate whether unfollow action allowed or not
+        type: boolean
+    required:
+    - followedPlaylistFeedCounters
+    - maxSlots
+    - maxFollowsActions
+    - followActionsUsed
+    - followedPlaylistFeeds
+    - followedPlaylistFeedsPrepopulated
+    - restrictUnfollows
+  Getsuser'sprofileresponse:
+    title: Gets user's profile response
+    type: object
+    properties:
+      userUid:
+        description: unique user id
+        type: string
+      installation:
+        description: If the request authentication token identifies to an installation then the installation object will be returned. Otherwise ommited.
+        $ref: '#/definitions/Installation'
+      identities:
+        description: array of identities if any available for the user. Ommited otherwise.
+        type: object
+    required:
+    - userUid
+  Installation:
+    title: Installation
+    type: object
+    properties:
+      uuid:
+        description: UUID formatted unique installation id.
+        type: string
+      identityId:
+        description: If assigned to this installation can be used as pointer to look up identity object from identities array.
+        type: number
+        format: double
+    required:
+    - uuid
+  Getuser'ssubscriptiondetailsresponse:
+    title: Get user's subscription details response
+    type: object
+    properties:
+      serverTime:
+        description: server time in ISO8601 format
+        type: string
+      tier:
+        $ref: '#/definitions/Tier'
+      activeProductSkus:
+        description: list of active product SKUs and products
+        type: object
+    required:
+    - serverTime
+    - tier
+    - activeProductSkus
+  Tier:
+    title: Tier
+    type: object
+    properties:
+      level:
+        description: tier level
+        $ref: '#/definitions/Level'
+    required:
+    - level
+  Level:
+    title: Level
+    type: string
+    enum:
+    - PENDING
+    - LIMITED
+    - FREE_TRIAL
+    - SUBSCRIBED
+  GetProductSKUsresponse:
+    title: Get Product SKUs response
+    type: object
+    properties:
+      cost:
+        description: If applicable. Ommited otherwise.
+        $ref: '#/definitions/Cost'
+      description:
+        description: payment description. Will be displayed when appove onetime payment
+        type: object
+      duration:
+        description: duration of the SKU.
+        $ref: '#/definitions/Duration'
+      id:
+        description: Product SKU ID
+        type: number
+        format: double
+      isCancelable:
+        description: true if it possible to cancel the Product Sku once it has been purchased. Typically only recurrent SKUs can be cancelled.
+        type: boolean
+      paymentMethod:
+        $ref: '#/definitions/PaymentMethod'
+      paymentType:
+        description: type of payment associated to this SKU.
+        $ref: '#/definitions/PaymentType'
+      products:
+        description: list of product ids associated to this sku.
+        type: object
+    required:
+    - id
+    - isCancelable
+    - paymentMethod
+    - paymentType
+    - products
+  PaymentType:
+    title: PaymentType
+    type: string
+    enum:
+    - ONETIME
+    - RECURRENT
+  PaymentMethod:
+    title: PaymentMethod
+    type: object
+    properties:
+      method:
+        $ref: '#/definitions/Method'
+      productReference:
+        description: reference to the product held in the payment methods system
+        type: string
+    required:
+    - method
+  Method:
+    title: Method
+    type: string
+    enum:
+    - ACTIVATION
+    - CREDITS
+    - ITUNES_SUBSCRIPTION
+    - NETSIZE
+    - PAY_PAL
+    - VOUCHER
+  Cost:
+    title: Cost
+    type: object
+    properties:
+      amount:
+        description: amount in the specified currency to purchase this SKU.
+        type: number
+        format: double
+      currencyIso:
+        description: currency that relates to price.  Format is 3-char ISO-4217.
+        type: string
+    required:
+    - amount
+    - currencyIso
+  Duration:
+    title: Duration
+    type: object
+    properties:
+      length:
+        description: length
+        type: string
+      unit:
+        description: unit of length.
+        $ref: '#/definitions/Unit'
+    required:
+    - length
+    - unit
+  Unit:
+    title: Unit
+    type: string
+    enum:
+    - DAYS
+    - MONTHS
+    - WEEKS
+    - YEARS
+  ApplyExternalPaymentrequest:
+    title: Apply External Payment request
+    type: object
+    properties:
+      productSkuId:
+        type: integer
+        format: int32
+      externalPaymentId:
+        type: integer
+        format: int32
+      externalPaymentDetailsId:
+        type: integer
+        format: int32
+    required:
+    - productSkuId
+    - externalPaymentId
+    - externalPaymentDetailsId
+  ApplyExternalPaymentresponse:
+    title: Apply External Payment response
+    type: object
+    properties:
+      purchaseId:
+        type: integer
+        format: int32
+      createdDate:
+        type: string
+    required:
+    - purchaseId
+    - createdDate
+  Getusercontextresponse:
+    title: Get user context response
+    type: object
+    properties:
+      referrals:
+        description: contains information about referrals
+        $ref: '#/definitions/Referrals'
+      favorites:
+        description: whether favouriting is enabled or disabled
+        $ref: '#/definitions/Favorites'
+      ads:
+        description: whether ads are enabled or disabled
+        $ref: '#/definitions/Ads'
+      behaviorTemplates:
+        description: describes behaviour for playlist types SHUFFLED, NORMAL, PREVIEW, GHOST
+        $ref: '#/definitions/BehaviorTemplates'
+      behavior:
+        description: defines behaviour for a playlist
+        $ref: '#/definitions/Behavior'
+      instructions:
+        description: define behaviour for each playlist
+        type: object
+      feedInstructions:
+        description: define behaviour for each playlist feed
+        type: object
+      context:
+        $ref: '#/definitions/Context'
+    required:
+    - referrals
+    - favorites
+    - ads
+    - behaviorTemplates
+    - behavior
+    - instructions
+    - feedInstructions
+    - context
+  Referrals:
+    title: Referrals
+    type: object
+    properties:
+      required:
+        description: required number of referrals to unlock the content
+        type: number
+        format: double
+      activated:
+        description: actually activated referral users
+        type: number
+        format: double
+    required:
+    - required
+    - activated
+  Favorites:
+    title: Favorites
+    type: object
+    properties:
+      instructions:
+        type: object
+    required:
+    - instructions
+  Ads:
+    title: Ads
+    type: object
+    properties:
+      instructions:
+        type: object
+    required:
+    - instructions
+  BehaviorTemplates:
+    title: BehaviorTemplates
+    type: object
+    properties:
+      offline:
+        description: defines whether content should be played offline or not
+        type: boolean
+      playTime:
+        description: track play limitation in seconds
+        type: number
+        format: double
+      maxTracks:
+        description: maximum number of tracks to play per time unit
+        $ref: '#/definitions/MaxTracks'
+      skipTracks:
+        description: maximum number of skips per time unit
+        $ref: '#/definitions/SkipTracks'
+  MaxTracks:
+    title: MaxTracks
+    type: object
+    properties:
+      number:
+        description: number of tracks
+        type: number
+        format: double
+      durationHours:
+        description: time unit value in hours
+        type: number
+        format: double
+    required:
+    - number
+    - durationHours
+  SkipTracks:
+    title: SkipTracks
+    type: object
+    properties:
+      number:
+        description: number of skips
+        type: number
+        format: double
+      durationHours:
+        description: time unit value in hours
+        type: number
+        format: double
+    required:
+    - number
+    - durationHours
+  Behavior:
+    title: Behavior
+    type: object
+    properties:
+      behavior:
+        $ref: '#/definitions/Behavior49'
+      validFrom:
+        description: any behavior start time
+        type: string
+      lockedAction:
+        description: defines that the exact playlist should be locked and/or the exact action which should be used for it
+        type: string
+    required:
+    - behavior
+    - validFrom
+  Behavior49:
+    title: Behavior49
+    type: string
+    enum:
+    - SHUFFLED
+    - PREVIEW
+    - NORMAL
+    - GHOST
+  Context:
+    title: Context
+    type: object
+    properties:
+      serverTime:
+        description: server time in ISO8601 format
+        type: string
+      playlists:
+        description: describes pushed playlists behaviours
+        $ref: '#/definitions/Playlists'
+      favorites:
+        description: whether favouriting is enabled or disabled
+        type: object
+      ads:
+        description: whether ads are enabled or disabled
+        type: object
+    required:
+    - serverTime
+    - favorites
+    - ads
+  Playlists:
+    title: Playlists
+    type: object
+    properties:
+      behaviorTemplates:
+        type: object
+      instructions:
+        type: object
+      feedInstructions:
+        type: object
+    required:
+    - behaviorTemplates
+  GetProductSKUsresponse52:
+    title: Get Product SKUs response52
+    type: object
+    properties:
+      id:
+        description: Product SKU ID
+        type: number
+        format: double
+      paymentType:
+        description: type of payment associated to this SKU.
+        $ref: '#/definitions/PaymentType'
+      paymentMethod:
+        $ref: '#/definitions/PaymentMethod54'
+      isCancelable:
+        description: true if it possible to cancel the Product Sku once it has been purchased. Typically only recurrent SKUs can be cancelled.
+        type: boolean
+      cost:
+        description: If applicable. Ommited otherwise.
+        $ref: '#/definitions/Cost'
+      duration:
+        description: duration of the SKU.
+        $ref: '#/definitions/Duration'
+      products:
+        description: list of product ids associated to this sku.
+        type: object
+      description:
+        description: payment description.
+        type: object
+      stripeCheckoutMetaData:
+        description: if payment method is STRIPE then additional data is provided to be used to populate Checkout page.
+        $ref: '#/definitions/StripeCheckoutMetaData'
+      graceDuration:
+        description: grace duration (in seconds) that is provided at the end of a subscription period where user is given additional time where they still have premium access. It is used to handle cases where payment providers take payment a period of time _after_ last period ends.
+        type: number
+        format: double
+    required:
+    - id
+    - paymentType
+    - paymentMethod
+    - isCancelable
+    - products
+  PaymentMethod54:
+    title: PaymentMethod54
+    type: object
+    properties:
+      method:
+        $ref: '#/definitions/Method55'
+      productReference:
+        description: reference to the product held in the payment methods system
+        type: string
+    required:
+    - method
+  Method55:
+    title: Method55
+    type: string
+    enum:
+    - ACTIVATION
+    - VOUCHER
+    - PAY_PAL
+    - NETSIZE
+    - ITUNES_SUBSCRIPTION
+    - CREDITS
+    - STRIPE
+  StripeCheckoutMetaData:
+    title: StripeCheckoutMetaData
+    type: object
+    properties:
+      title:
+        description: checkout form title. This maps to Stripe field *data-name*.
+        type: string
+      checkoutButtonText:
+        description: 'checkout form button text. This maps to Stripe field *data-panel-label*. NOTE: templating can be used to populate amount from *data-amount*, see https://stripe.com/docs/checkout#integration-simple.'
+        type: string
+      openCheckoutButtonText:
+        description: text on button that is tapped to launch checkout page.
+        type: string
+    required:
+    - title
+    - checkoutButtonText
+    - openCheckoutButtonText
+  Postnewinstallationrequest60:
+    title: Post new installation request60
+    type: object
+    properties:
+      installationID:
+        type: string
+      deviceID:
+        type: string
+      push:
+        type: object
+      referrer:
+        type: object
+    required:
+    - installationID
+    - deviceID
+    - push
+    - referrer
+  GetProductSKUsresponse62:
+    title: Get Product SKUs response62
+    type: object
+    properties:
+      cost:
+        description: If applicable. Ommited otherwise.
+        $ref: '#/definitions/Cost'
+      creditsCost:
+        description: If payment method is _CREDITS_ then defines amount of credits required to purchase the Sku. Ommited otherwise.
+        $ref: '#/definitions/CreditsCost'
+      duration:
+        description: duration of the SKU.
+        $ref: '#/definitions/Duration'
+      id:
+        description: Product SKU ID
+        type: number
+        format: double
+      isCancelable:
+        description: true if it possible to cancel the Product Sku once it has been purchased. Typically only recurrent SKUs can be cancelled.
+        type: boolean
+      paymentMethod:
+        $ref: '#/definitions/PaymentMethod'
+      paymentType:
+        description: type of payment associated to this SKU.
+        $ref: '#/definitions/PaymentType'
+      products:
+        description: list of product ids associated to this sku.
+        type: object
+    required:
+    - id
+    - isCancelable
+    - paymentMethod
+    - paymentType
+    - products
+  CreditsCost:
+    title: CreditsCost
+    type: object
+    properties:
+      amount:
+        description: amount of credits
+        type: number
+        format: double
+      bucket:
+        description: bucket from which credits must be taken
+        type: string
+    required:
+    - amount
+    - bucket
+  Getreferredactivationsresponse:
+    title: Get referred activations response
+    type: object
+    properties:
+      referredActivations:
+        type: array
+        items:
+          type: object
+    required:
+    - referredActivations
+  PurchasableProductSKUsrequest:
+    title: Purchasable Product SKUs request
+    type: object
+    properties:
+      appXUserAgent:
+        description: X-USER-AGENT string provided by the mobile application
+        type: string
+      activeProductSkus:
+        description: active Product SKUs a user has
+        type: object
+    required:
+    - activeProductSkus
+  PurchasableProductSKUsresponse:
+    title: Purchasable Product SKUs response
+    type: object
+    properties:
+      purchasableProductSkus:
+        description: list of products that are active for this SKU
+        type: object
+    required:
+    - purchasableProductSkus
+  sort:
+    title: sort
+    type: string
+    enum:
+    - name
+    - name,ASC
+    - name,DESC
+  paymentMethod:
+    title: paymentMethod
+    type: string
+    enum:
+    - VOUCHER
+    - PAY_PAL
+    - 'NETSIZE'
+    - 'ACTIVATION'
+    - creditCard
+    - iTunesSubscription
+    - PSMS
+    - o2Psms
+    - vfPsms
+  sort2:
+    title: sort2
+    type: string
+    enum:
+    - name
+    - name,ASC
+    - name,DESC
+    - paymentMethod
+    - paymentMethod,ASC
+    - paymentMethod,DESC

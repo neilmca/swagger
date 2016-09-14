@@ -1,0 +1,219 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: JAdmin API 1.0
+  description: |
+  
+    Endpoints exposed from the Core Serve - Jadmin path.
+    
+    JAdminRoot Url https://mtv.musicqubed.com/jadmin/api/service/1.0
+    
+
+host: mtv.musicqubed.com
+basePath: /jadmin/api/service/1.0/
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+tags:
+  - name: Communities
+    description: |
+     Defines endpoints to manage community related information.
+  - name: Products
+    description: |
+     Defines endpoints to manage product related information.
+    
+
+paths:
+  
+  /communities:
+    get:
+      description: List available communities.
+      tags:
+      - Communities
+      parameters:
+      - name: live
+        in: query
+        required: false
+        x-is-map: false
+        type: boolean
+        description: true returns only active, false - inactive communities. If not specified (default) - both active and inactive.
+      - name: sort
+        in: query
+        required: false
+        enum:
+        - name
+        - name,ASC
+        - name,DESC
+        type: string
+        description: Sort field. If not specified (default) ascending by name sorting is used.
+      responses:
+        200: 
+          description: ok
+          schema:
+            $ref: "#/definitions/Communities"
+          examples:
+            application/json:
+              total: 2
+              data:
+              - id: mtvie
+                name: mtvie
+                live: true
+              - id: mtv1
+                name: mtv1
+                live: true
+  /communities/{communityId}/products:
+    get:
+      description: List Products for the specified community.
+      tags:
+      - Products
+      produces:
+      - application/json
+      parameters:
+      - name: communityId
+        in: path
+        required: true
+        type: string
+        description: CommunityID (a.k. community.urlRewriteParameter in the Core System).
+      - name: paymentMethod
+        in: query
+        required: false
+        enum:
+        - VOUCHER
+        - PAY_PAL
+        - NETSIZE
+        - ACTIVATION
+        - creditCard
+        - iTunesSubscription
+        - PSMS
+        - o2Psms
+        - vfPsms
+        type: string
+        description: (a.k. paymentPolicy.paymentType in the Core System). Single value or array to filter products by paymentMethod. No filtering if no specified.
+      - name: sort
+        in: query
+        required: false
+        enum:
+        - name
+        - name,ASC
+        - name,DESC
+        - paymentMethod
+        - paymentMethod,ASC
+        - paymentMethod,DESC
+        type: string
+        description: Sort field. If not specified (default) ascending by name sorting is used.
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/CommunityProducts'
+          examples:
+            application/json:
+              total: 2
+              data:
+              - id: 1
+                name: Full Access 30 days
+                paymentMethod: VOUCHER
+                duration:
+                  length: 1
+                  unit: WEEKS
+                productDurationLongerThanFreeTrial: true
+              - id: 2
+                name: 100 Plays
+                paymentMethod: PAY_PAL
+        400:
+          description: bad request 
+        401:
+          description: unauthorized
+        404:
+          description: not found
+  
+
+                    
+definitions:
+  Communities:
+    type: object
+    required:
+    - total
+    - data
+    properties:
+      total:
+        description: total amount of data found in the Core System.
+        type: number
+        format: double
+      data:
+        type: array
+        description: communities data array
+        items: 
+          $ref: "#/definitions/Community"
+  Community:
+    description: communities data.
+    type: object
+    required:
+    - id
+    - name
+    - live
+    properties:
+      id:
+        type: string
+        description: CommunityID (a.k. community.urlRewriteParameter in the Core System).
+      name:
+        type: string
+        description: name (a.k. community.displayName in the Core System).
+      live:
+        type: boolean
+        description: defines wherether community is active or inactive.
+  CommunityProducts:
+    type: object
+    required:
+    - total
+    - data
+    properties:
+      total:
+        description: total mount of data found in the Core System.
+        type: number
+        format: long
+      data:
+        type: array
+        items:
+          type: object
+          required:
+          - id
+          - name
+          - paymentMethod
+          properties:
+            id:
+              description: productID (a.k. paymentPolicy.ID in the Core System).
+              type: number
+              format: double
+            name:
+              description: product name (a.k. paymentPolicy.contentDescription in the Core System).
+              type: string
+            paymentMethod:
+              description: product paymentMethod (a.k. paymentPolicy.paymentType in the Core System).
+              type: string
+            duration:
+              description: duration information for the product. Optional as would not be present if product did not specify a duration e.g. 100 plays product
+              type: object
+              required:
+              - length
+              - unit
+              properties:
+                length:
+                  description: length of product
+                  type: string
+                unit:
+                  description: unit of length. Possible values are SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS
+                  type: object
+            productDurationLongerThanFreeTrial:
+              description: True if the duration of the product is longer than the Free Trial period for the specified community.
+              type: boolean
+          
+    
+
+                
+            
+  
+  
