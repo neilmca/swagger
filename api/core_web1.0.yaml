@@ -73,7 +73,7 @@ paths:
       responses:
         200:
           description: |
-            Voucher was successfully redeemed and the entitlement has been applied to the user.
+            (Ok) Voucher was successfully redeemed and the entitlement has been applied to the user.
             + Response body gives indication of the effect that redeeming the voucher has had to the user's account.
               + *billingExtension* - the date to when the user will next be billed has been extended. When this value is returned the *date* field provides the next billing date.\n            
                 + This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. 
@@ -84,15 +84,25 @@ paths:
           schema:
             $ref: '#/definitions/Redeemresponse'
         302:
-          description: Found
+          description: |
+            (Found) is sent back in case voucher redemption was not fully completed. But may still successfully complete after some time.
         401:
-          description: Unauthorized
+          description: |
+            (Unauthorized) is sent back in case request failed to pass security context validation.
         404:
-          description: Unexpected error in API call. See HTTP response body for details.
+          description: |
+            (Not Found) is sent back for reasons below
+              + NotActive - the voucher cannot be redeemed as it is inactive\n    + NotRecognized - the voucher code was not recognized.
+              + NotStarted - the voucher cannot be redeemed as the start date is in the future.
         409:
-          description: Unexpected error in API call. See HTTP response body for details.
+          description: |
+            (Conflict) is sent back or reasons below
+              + Redeemed -  the voucher is already redeemed
+              + iTunesSubscribed - the voucher cannot be redeemed as the user is already subscribed via iTunes
+              + PaymentPending - redemption cannot be applied at present because user state does not allow it. (E.g if user state is pending payment processing)
         410:
-          description: Unexpected error in API call. See HTTP response body for details.
+          description: |
+            (Gone) is sent back n case request failed as voucher has expired
 definitions:
   Redeemresponse:
     type: object
