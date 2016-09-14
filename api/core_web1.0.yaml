@@ -29,26 +29,7 @@ paths:
       description: |
       
         Redeems a voucher for a given user.  Response provides details of success or failure (and reason).
-      
-        
-        + HTTP 200 (Ok) Voucher was successfully redeemed and the entitlement has been applied to the user.
-          + Response body gives indication of the effect that redeeming the voucher has had to the user's account.
-            + *billingExtension* - the date to when the user will next be billed has been extended. When this value is returned the *date* field provides the next billing date.\n            
-              + This would be returned when a user has redeemed a voucher and already had a recurring (e.g. PayPal) subscription. 
-            + *expiryExtension* - the expiry date for the user has been extended. When this value is returned the *date* field provides the expiration date.
-            + This would be returned when a user has redeemed a voucher and already had a one-time subscription e.g. a premium-pass. 
-            + *newEntitlement* - the user has been granted new entitlement that they did not previously have.  When this value is returned the *date* field provides the expiration date.
-            + This would be returned when a user has redeemed a voucher and did not have any previous subscription.
-        + HTTP 302 (Found) is sent back in case voucher redemption was not fully completed. But may still successfully complete after some time.
-        + HTTP 401 (Unauthorized) is sent back in case request failed to pass security context validation.
-        + HTTP 404 (Not Found) is sent back for reasons below
-          + NotActive - the voucher cannot be redeemed as it is inactive\n    + NotRecognized - the voucher code was not recognized.
-          + NotStarted - the voucher cannot be redeemed as the start date is in the future.
-        + HTTP 409 (Conflict) is sent back or reasons below
-          + Redeemed -  the voucher is already redeemed
-          + iTunesSubscribed - the voucher cannot be redeemed as the user is already subscribed via iTunes
-          + PaymentPending - redemption cannot be applied at present because user state does not allow it. (E.g if user state is pending payment processing)
-        + HTTP 410 (Gone) is sent back n case request failed as voucher has expired
+    
       tags:
       - Vouchers
       produces:
@@ -100,9 +81,37 @@ paths:
               + Redeemed -  the voucher is already redeemed
               + iTunesSubscribed - the voucher cannot be redeemed as the user is already subscribed via iTunes
               + PaymentPending - redemption cannot be applied at present because user state does not allow it. (E.g if user state is pending payment processing)
+          schema:
+            type: object
+            properties:
+              status: 
+                description:  Error status
+                type: string
+                enum:
+                - Redeemed
+                - PaymentPending
+                - iTunesSubscribed
+              errorMessage:
+                description: error description
+                type: string
+          examples:
+            application/json:
+              status: PaymentPending
+              errorMessage: voucher redemption already in progress
+            
+                
         410:
           description: |
             (Gone) is sent back n case request failed as voucher has expired
+          schema:
+            type: object
+            properties:
+              errorMessage:
+                description: error description
+                type: string
+          examples:
+            errorMessage: voucher has expired
+                 
 definitions:
   Redeemresponse:
     type: object
