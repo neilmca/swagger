@@ -124,6 +124,7 @@ paths:
                 description: error description
                 type: string
           examples:
+            application/json:
               status: NotActive
               errorMessage: Voucher is not active
         409:
@@ -146,6 +147,7 @@ paths:
                 description: error description
                 type: string
           examples:
+            application/json:
               status: PaymentPending
               errorMessage: voucher redemption already in progress
             
@@ -160,7 +162,8 @@ paths:
                 description: error description
                 type: string
           examples:
-            errorMessage: voucher has expired
+            application/json:
+              errorMessage: voucher has expired
                  
 
     
