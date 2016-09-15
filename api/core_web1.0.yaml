@@ -139,12 +139,14 @@ paths:
               status: 
                 description:  Error status
                 type: string
+                example: PaymentPending
                 enum:
                 - Redeemed
                 - PaymentPending
                 - iTunesSubscribed
               errorMessage:
                 description: error description
+                example: voucher redemption already in progress
                 type: string
           examples:
             application/json:
