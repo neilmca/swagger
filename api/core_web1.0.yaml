@@ -6,7 +6,7 @@ info:
   
     Endpoints exposed from the Core Serve - Web path.
     
-    JAdminRoot Url https://mtv.musicqubed.com/web/1.0
+    Web root Url https://mtv.musicqubed.com/web/1.0
 
 host: mtv.musicqubed.com
 basePath: /web/1.0
@@ -115,6 +115,7 @@ paths:
             properties:
               status: 
                 description:  Error status
+                example: NotRecognized
                 type: string
                 enum:
                 - NotActive
@@ -122,11 +123,8 @@ paths:
                 - NotStarted
               errorMessage:
                 description: error description
+                example: Voucher is not recognized
                 type: string
-          examples:
-            application/json:
-              status: NotActive
-              errorMessage: Voucher is not active
         409:
           description: |
             (Conflict) is sent back or reasons below
@@ -148,10 +146,7 @@ paths:
                 description: error description
                 example: voucher redemption already in progress
                 type: string
-          examples:
-            application/json:
-              status: PaymentPending
-              errorMessage: voucher redemption already in progress
+          
             
                 
         410:
@@ -162,10 +157,9 @@ paths:
             properties:
               errorMessage:
                 description: error description
+                example: voucher has expired
                 type: string
-          examples:
-            application/json:
-              errorMessage: voucher has expired
+         
                  
 
     

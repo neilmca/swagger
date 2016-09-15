@@ -6,7 +6,7 @@ info:
   
     Endpoints exposed from the Core Serve - Jadmin path.
     
-    JAdminRoot Url https://mtv.musicqubed.com/jadmin/api/service/1.0
+    JAdmin root Url https://mtv.musicqubed.com/jadmin/api/service/1.0
     
 
 host: mtv.musicqubed.com
