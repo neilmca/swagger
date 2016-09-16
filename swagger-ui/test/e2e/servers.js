@@ -8,7 +8,7 @@ var createServer = require('http-server').createServer;
 
 var dist = path.join(__dirname, '..', '..', 'dist');
 var specs = path.join(__dirname, '..', '..', 'test', 'specs');
-var DOCS_PORT = 8082;
+var DOCS_PORT = 8080;
 var SPEC_SERVER_PORT = 8081;
 
 var driver = require('./driver');
