@@ -8,7 +8,13 @@ info:
     
     Transport root Url https://mtv.musicqubed.com/transport/service/
 
-    All endpoints have mandatory X-User-Agent HTTP Header.    
+    All endpoints have mandatory X-User-Agent HTTP Header.   
+    
+    ### API Security
+    
+    Where a HTTP Authorization header is specified then the token to be appended is the rememberMe token that is received from ACC_CHECK. E.g.
+    
+    Authorization: Bearer 9IJF9SEFSNEF9S8EHRF9WF
 
 host: mtv.musicqubed.com
 basePath: /transport/service/
@@ -21,10 +27,16 @@ produces:
 tags:
   - name: Installations
     description: |
-      Defines set of endpoints required by application to complete installation and user identification flow. 
-  - name: Products
+      Defines set of endpoints required by application to complete installation and user identification flow.
+  - name: Multiple Installations
     description: |
-     Defines endpoints to manage product related information.
+      Defines endpoints to be used by applications to perform as primary within list on known installations.
+  - name: Multiple Installations
+    description: |
+      Defines endpoints to be used by applications to manage a user's followed playlists
+  - name: Admin
+    description: |
+      Defines endpoints to be used for admin or system purposes.
     
 
 paths:
@@ -110,6 +122,393 @@ paths:
           description: (Not Found) is sent back in case there is either no requested community, apiVersion
         409:
           description: (Conflict) is sent back in case request from the client tries is the attempt to create duplicate installation resource (of the same installationID)
+  /{community}/7.0/installations/{installationID}/{identityProvider}/:
+    put:
+      description: |
+       Update installation's identity provider details.
+       
+       When user is ready to identity themselves.
+      tags:
+      - Multiple Installations
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+        description: Community name in the form of string.
+      - name: installationID
+        in: path
+        required: true
+        type: string
+        description: installationID to update installation's user identity provider.
+      - name: identityProvider
+        in: path
+        required: true
+        type: string
+        description: Supported provider. (e.g. FACEBOOK, GOOGLE, etc.)
+      - name: secureToken
+        in: query
+        required: true
+        type: string
+        description: Wiki page display/GINF/General defines how to generate one. Payload is installationToken.
+      - name: timestamp
+        in: query
+        required: true
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            userIdentity:
+              type: object
+            push:
+              type: object
+          required:
+          - userIdentity
+          - push
+      responses:
+        200:
+          description: (Ok) is sent back in case installation resource was successully updated with identityProvider details sent (a.k. legacy user.firstActivation=false). Existing user userID is sent back as JSON.
+          schema:
+            type: object
+            properties:
+              userId:
+                description: userId
+                type: string
+            required:
+            - userId
+        201:
+          description: (Created) is sent back in case request created new resource (user) with identityProvider details sent (a.k. user.firstActivation=true). New user userID is sent back as JSON.
+          schema:
+            type: object
+            properties:
+              userId:
+                description: userId
+                type: string
+            required:
+            - userId
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations
+        403:
+          description: (Forbidden) is sent back in case client sends request to update installation with identity provider but installation already has these details
+        404:
+          description: (Not Found) is sent back in case there is either no requested community, apiVersion, installation or identityProvider
+  /transport/service/{community}/7.0/installations/{installationID}/primary:
+    get:
+      description: Confirms if the installation is primary.
+      tags:
+      - Multiple Installations
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+        description: Community name in the form of string.
+      - name: installationID
+        in: path
+        required: true
+        type: string
+        description: installationID to update installation's user identity provider.
+      - name: secureToken
+        in: query
+        required: true
+        type: string
+        description: Wiki page defines how to generate one. Payload is installationToken.
+      - name: timestamp
+        in: query
+        required: true
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      responses:
+        200:
+          description: (Ok) responses from this endpoint may contain HTTP Header 'Retry-After' with the value in seconds to retry request. Polling is not required if header is not present.
+          headers:
+            Retry-After:
+              description: value in seconds to retry request
+              type: integer
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations.
+        403:
+          description: (Forbidden) is sent back in case client is in state not appropriate for the request.
+        404:
+          description: (Not Found) is sent back in case there are either no requested community, apiVersion, installation.
+        409:
+          description: (Conflict) server sends this error in case polling installation is not primary anymore for client to resolve what to do next.
+    put:
+      description: Set installation as primary.
+      tags:
+      - Multiple Installations
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+        description: Community name in the form of string.
+      - name: installationID
+        in: path
+        required: true
+        type: string
+        description: installationID to update installation's user identity provider.
+      - name: secureToken
+        in: query
+        required: true
+        type: string
+        description: Wiki page defines how to generate one. Payload is installationToken.
+      - name: timestamp
+        in: query
+        required: true
+        type: integer
+        format: int64
+        description: Wiki page describes why we need this.
+      responses:
+        200:
+          description: (Ok) responses from this endpoint may contain HTTP Header 'Retry-After' with the value in seconds to retry request. Polling is not required if header is not present.
+          headers:
+            Retry-After:
+              description: value in seconds to retry request
+              type: integer
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements.
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations.
+        403:
+          description: (Forbidden) is sent back in case client is in state not appropriate for the request.
+        404:
+          description: (Not Found) is sent back in case there are either no requested community, apiVersion, installation.
+  /transport/service/{community}/7.0/me/follows:
+    get:
+      description: >-
+        Get all followed playlist feeds.
+      tags:
+      - Follows
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: (Ok) is sent back with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+          schema:
+            $ref: '#/definitions/FollowsResponse'
+          examples:
+            application/json:
+              followedPlaylistFeedCounters:
+                maxSlots: 5
+                maxFollowsActions: 8
+                nextFollowActionDate: 2014-11-28Thh:mm:ss.sTZD
+                followActionsUsed: 1
+              followedPlaylistFeeds:
+              - 1213234234
+              - 456767895689
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations
+        403:
+          description:   (Forbidden) is sent back in case client is in state not appropriate for the request  
           
+  /transport/service/{community}/7.0/me/follows/{playlistFeedId}:
+    put:
+      description: |
+        Follow a playlist feed
+      tags:
+      - Follows
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+      - name: playlistFeedId
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: (Ok) is sent back in case of successful follow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+          schema:
+            $ref: '#/definitions/FollowsResponse'
+          examples:
+            application/json:
+              followedPlaylistFeedCounters:
+                maxSlots: 5
+                maxFollowsActions: 8
+                nextFollowActionDate: 2014-11-28Thh:mm:ss.sTZD
+                followActionsUsed: 1
+              followedPlaylistFeeds:
+              - 1213234234
+              - 456767895689
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations
+        403:
+          description: (Forbidden) is sent back in case client is in state not appropriate for the request
+        409:
+          description: (Conflict) is sent back in case user has exceeded all allowed playlist slots or follow actions. The error type is contained in JSON
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum:
+                - MAX_SLOTS_EXCEEDED
+                - MAX_FOLLOW_ACTIONS_EXCEEDED
+    delete:
+      description: |
+        Unfollow a playlst feed
+      tags:
+      - Follows
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+      - name: playlistFeedId
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: (Ok) is sent back in case of successful unfollow action with JSON containing playlist feeds ids and user's followedPlaylistFeedCounters
+          schema:
+            $ref: '#/definitions/FollowsResponse'
+          examples:
+            application/json:
+              followedPlaylistFeedCounters:
+                maxSlots: 5
+                maxFollowsActions: 8
+                nextFollowActionDate: 2014-11-28Thh:mm:ss.sTZD
+                followActionsUsed: 1
+              followedPlaylistFeeds:
+              - 1213234234
+              - 456767895689
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations
+  
+  /transport/service/admin/{community}/7.0/users/{uid}/token:
+    post:
+      description: Allows a trusted system identified as an issuer to get an authentication token and make calls to Core Server APIs on behalf of a given user.
+      tags:
+      - Admin
+      operationId: Create_Refresh authentication token_
+      produces:
+      - application/json
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+      - name: uid
+        in: path
+        required: true
+        type: string
+        description: User unique id
+      - name: secureToken
+        in: query
+        required: true
+        type: string
+        description: Wiki page display/GINF/General defines how to generate one.
+      - name: timestamp
+        in: query
+        required: true
+        type: integer
+        format: int64
+        description: '... Wiki page describes why we need this.'
+      - name: issuer
+        in: query
+        required: true
+        type: string
+        description: Unique id assigned to the system issuing the secureToken
+      responses:
+        200:
+          description: provision new token
+          schema:
+            description: Refresh authentication token response
+            type: object
+            properties:
+              access_token:
+                description: access token value
+                type: string
+              token_type:
+                description: authorization type returned value can be used
+                type: string
+                enum:
+                - Bearer
+              expires_in:
+                description: number of seconds for token to expire
+                type: number
+                format: double
+            required:
+            - access_token
+            - token_type
+            - expires_in
+          examples:
+            application/json:
+              access_token: 9IJF9SEFSNEF9S8EHRF9WXX
+              token_type: Bearer
+              expires_in: 3600
+        400:
+          description: (Bad Request) is sent back in case of any issues while resolving parameters, headers or body elements
+        401:
+          description: (Unauthorized) is sent back in case request failed to pass security context validations
+     
 
-   
+definitions:
+  FollowsResponse:
+    description: Get list of followed playlists response
+    type: object
+    required:
+    - followedPlaylistFeedCounters
+    - maxSlots
+    - maxFollowsActions
+    - followActionsUsed
+    - followedPlaylistFeeds
+    properties:
+      followedPlaylistFeedCounters:
+        description: information relating to the number of playlist feed follows the user has
+        type: object
+      maxSlots:
+        description: number of playlist feeds slots that a user can follow at the same time
+        type: number
+        format: int
+      maxFollowsActions:
+        description: maximum number of playlist feeds follow actions allowed
+        type: number
+        format: int
+      nextFollowActionDate:
+        description: date and time when user will be able to do another follow action if the number of allowed follow actions has been exceeded
+        type: string
+      followActionsUsed:
+        description: number of used follow actions
+        type: number
+        format: int
+      followedPlaylistFeeds:
+        description: list of followed playlist feeds. Can be empty if user has no followed playlist feeds
+        type: object
+  
+  
+          
