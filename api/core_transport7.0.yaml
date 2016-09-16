@@ -31,7 +31,7 @@ tags:
   - name: Multiple Installations
     description: |
       Defines endpoints to be used by applications to perform as primary within list on known installations.
-  - name: Multiple Installations
+  - name: Follows
     description: |
       Defines endpoints to be used by applications to manage a user's followed playlists
   - name: Admin
@@ -164,14 +164,49 @@ paths:
         required: true
         schema:
           type: object
+          required:
+          - userIdentity
+          example:
+            userIdentity:
+              id: facebook id
+              accessToken: BhpTSDshRH42YlkKvHpJGBL7Eal8f_m5e6wslNGehmM_PFhOh45KQmuw4iRkUSbIHHpex87zJzxlcX0UuyVW4fvfU85tvQCn1legvAD80aiP7-a_aswiMQqU9_SrjU2nZJb8oQAtF4SYH2JYB-Pn1-yDPDboNWzDx5n8iOMEGYLSw
+              email: someone@facebook.com
+            push:
+              providerType: URBAN_AIRSHIP
+              token: asdlkjlkj
           properties:
             userIdentity:
               type: object
+              description: Defines id & accessToken to be used to get identity profile via specified identityProvider.
+              required:
+              - id
+              - accessToken
+              properties:
+                id:
+                  type: string
+                  description: social network identity
+                accessToken:
+                  type: string
+                  description: social network token
+                email:
+                  type: string
+                  description: email address associated to the social network identity
             push:
               type: object
-          required:
-          - userIdentity
-          - push
+              description: Defines provider (as URBAN_AIRSHIP) & token to be used to push notifications back to the device.
+              required:
+              - providerType
+              - token
+              properties:
+                providerType:
+                  type: string
+                  description: push provider name
+                  example: URBAN_AIRSHIP
+                token: 
+                  type: string
+                  description: push provider token
+                  example: asdlkjlkj
+         
       responses:
         200:
           description: (Ok) is sent back in case installation resource was successully updated with identityProvider details sent (a.k. legacy user.firstActivation=false). Existing user userID is sent back as JSON.
@@ -183,6 +218,9 @@ paths:
                 type: string
             required:
             - userId
+          examples:
+            application/json:
+              userId: 94319568252f4516e5b93698fd4e035e
         201:
           description: (Created) is sent back in case request created new resource (user) with identityProvider details sent (a.k. user.firstActivation=true). New user userID is sent back as JSON.
           schema:
@@ -191,6 +229,7 @@ paths:
               userId:
                 description: userId
                 type: string
+                example: 94319568252f4516e5b93698fd4e035e
             required:
             - userId
         400:
