@@ -129,7 +129,7 @@ paths:
        
        When user is ready to identity themselves.
       tags:
-      - Multiple Installations
+      - Installations
       produces:
       - application/json
       parameters:
