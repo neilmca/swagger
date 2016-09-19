@@ -205,11 +205,9 @@ paths:
                 providerType:
                   type: string
                   description: push provider name
-                  example: URBAN_AIRSHIP
                 token: 
                   type: string
                   description: push provider token
-                  example: asdlkjlkj
          
       responses:
         200:
@@ -233,7 +231,6 @@ paths:
               userId:
                 description: userId
                 type: string
-                example: 94319568252f4516e5b93698fd4e035e
             required:
             - userId
           examples:
