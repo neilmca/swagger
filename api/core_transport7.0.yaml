@@ -16,42 +16,6 @@ info:
     
     Authorization: Bearer 9IJF9SEFSNEF9S8EHRF9WF
     
-    Following text is to see how it renders in viewers
-      
-    Link in text [registered your client](http://instagram.com/developer/register/) it's easy
-    to start requesting data from Instagram.
-
-    code example
-    ```
-      https://api.instagram.com/v1/media/popular?client_id=CLIENT-ID
-      
-      {
-        "meta": {
-            "code": 200
-        },
-        "data": {
-            ...
-        },
-        "pagination": {
-            "next_url": "...",
-            "next_max_id": "13872296"
-        }
-      }
-    ```
-    + a bullet
-      + an second level bullet
-      
-    # A H1 Header
-    Be nice. If you're sending too many requests too quickly, we'll send back a
-    `503` error code (server unavailable).
-    
-    ## A H2 Header
-    With some text underneath
-    
-    ### A H3 Header
-    With some text underneath
-    
-
 host: mtv.musicqubed.com
 basePath: /transport/service/
 schemes:
@@ -70,38 +34,6 @@ tags:
   - name: Follows
     description: |
       Defines endpoints to be used by applications to manage a user's followed playlists. Provides capabilities to
-      
-      Following text is to see how it renders in viewers
-      
-      Link in text [registered your client](http://instagram.com/developer/register/) it's easy
-      to start requesting data from Instagram.
-  
-      code example
-      ```
-        https://api.instagram.com/v1/media/popular?client_id=CLIENT-ID
-        
-        {
-          "meta": {
-              "code": 200
-          },
-          "data": {
-              ...
-          },
-          "pagination": {
-              "next_url": "...",
-              "next_max_id": "13872296"
-          }
-        }
-      ```
-      + a bullet
-        + an second level bullet
-      
-      # A H1 Header
-      Be nice. If you're sending too many requests too quickly, we'll send back a
-      `503` error code (server unavailable).
-      
-      ## A H2 Header
-      With some text underneath
   - name: Admin
     description: |
       Defines endpoints to be used for admin or system purposes.
@@ -488,6 +420,9 @@ paths:
                 enum:
                 - MAX_SLOTS_EXCEEDED
                 - MAX_FOLLOW_ACTIONS_EXCEEDED
+          examples:
+            application/json:
+              message: MAX_SLOTS_EXCEEDED
     delete:
       description: |
         Unfollow a playlst feed
