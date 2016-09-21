@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "1.0"
-  title: JAdmin DEV API 1.0
+  title: JAdmin API 1.0
   description: |
   
     Endpoints exposed from the Core Serve - Jadmin path.

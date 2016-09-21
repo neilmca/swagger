@@ -7,10 +7,11 @@ RUN npm install
 RUN npm run build
 
 RUN mkdir ./dist/api
+RUN mv ./dist/index.html ./dist/swagger-ui.html
 COPY /api/core_jadmin1.0.yaml ./dist/api
 COPY /api/core_transport7.0.yaml ./dist/api
 COPY /api/core_web1.0.yaml ./dist/api
-COPY /master_index.html ./dist
+COPY /index.html ./dist
 
 
 EXPOSE 8080
