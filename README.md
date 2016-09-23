@@ -53,3 +53,10 @@ create an app.yaml and then include docker image url.
 ```Bash
 gcloud app deploy --image-url us.gcr.io/mq-cloud-prototyping-2/swagger/swagger-ui:0.1 --project mq-cloud-prototyping-2
 ```
+
+
+TO deploy as a module 
+
+```Bash
+gcloud app deploy swaggerui-module.yaml --image-url us.gcr.io/mq-cloud-prototyping-2/swagger/swagger-ui:0.1 --project mq-cloud-prototyping-2
+```
